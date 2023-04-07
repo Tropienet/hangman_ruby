@@ -1,94 +1,71 @@
-puts "Hangman initialized"
+# frozen_string_literal: true
 
-lines = File.readlines("words.txt")
+puts 'Hangman initialized'
 
-letters = "qwertzuiopasdfghjklyxcvbnm"
+lines = File.readlines('words.txt')
 
-class Game 
-    def initialize(lines)
-        @lines = lines
-        @lives = 5;
-        @guesses = []
-        @word_list = []
-        @word = ""
-        @letters = "qwertzuiopasdfghjklyxcvbnm"
+class Game
+  def initialize(lines)
+    @lines = lines
+    @guesses = []
+    @word_list = []
+    @word = ''
+    @letters = 'qwertzuiopasdfghjklyxcvbnm'
+    @lives = 5
+  end
+
+  def get_word_list
+    @lines.each do |line|
+      @word_list.push(line) if line.length > 5 && line.length < 12
     end
+  end
 
-    def get_word_list 
-        @lines.each do |line|
-            if line.length > 5 && line.length < 12
-                @word_list.push(line)
-            end
-        end
-    end
+  def generate_random_word
+    @word = @word_list[rand(@word_list.length)]
+  end
 
-    def generate_random_word
-        @word = @word_list[rand(@word_list.length)]
+  def play_round(guess)
+    if @word.include?(guess)
+      puts "The word includes #{guess}"
+    else
+      @lives -= 1
     end
+    @guesses.push(guess)
+  end
 
-    def play_round(guess)
-        if @word.include?(guess) 
-            puts "The word includes #{guess}"
-        end
+  def return_lives
+    @lives
+  end
+
+  def display_word
+    current_word = @word.split("")
+    current_word.pop()
+    current_word.each do |letter|
+      if @guesses.include?(letter)
+        print letter
+      else
+        print ' _ '
+      end
     end
+    if (current_word - @guesses).empty?
+        puts "You win"
+        @lives = 0
+    end
+  end
 end
 
 game = Game.new(lines)
 game.get_word_list
 game.generate_random_word
-game.play_round(gets.chomp)
+game.display_word
 
-
-word_list = []
-lives = 5
-
-lines.each do |line|
-    if line.length > 5 && line.length < 12
-       word_list.push(line)
-    end
-end
-
-word = word_list[rand(word_list.length)]
-guesses = []
-current_word = word
-
-while lives > 0 do
-    alreadyTried = true
-
-    def getGuess 
-        puts "Please enter 1 letter"
-        return gets.chomp
-    end
-
-    guess = getGuess()
-
-    while alreadyTried do
-        if guesses.include?(guess)
-            if lives > 0
-                lives -= 1
-                puts "You already tried this letter, current lives #{lives}"
-                guess = getGuess()
-            end
-        elsif
-            alreadyTried = false
-        end
-    end
-    while guess.length > 1 do 
-        guess = getGuess
-    end 
-
-    if word.include?(guess)
-        letters = letters.gsub(guess, "_")
-        puts letters
-        puts "This is the word #{current_word.gsub(letters, "_")}"
-        guesses.push(guess)
-        p "Already tried #{guesses.join(",")}"
-    elsif
-        lives -=1
-        puts "Remaining lives #{lives}"
-        guesses.push(guess)
-        p "Already tried #{guesses.join(",")}"
-    end
-
-    
+while !game.return_lives.zero?
+  puts 'please enter a letter'
+  guess = gets.chomp
+  while guess.length > 1
+    puts 'please enter a letter'
+    guess.gets.chomp
+  end
+  game.play_round(guess)
+  game.display_word
 end
